@@ -1,0 +1,32 @@
+# 3ds Max Wavefront OBJ Exporter v0.99 - (c)2007 guruware
+# File Created: 24.11.2023 18:46:17
+
+mtllib PisoCajon.mtl
+
+#
+# object Plane_010_Plane_011
+#
+
+v  0.2620 0.1731 0.5972
+v  0.2725 0.1746 -0.3962
+v  -0.2200 0.1746 -0.3962
+v  -0.2305 0.1731 0.5972
+# 4 vertices
+
+vn 0.0000 1.0000 0.0015
+# 1 vertex normals
+
+vt 0.9792 -0.0000 -0.0000
+vt 1.0000 1.0000 1.0000
+vt 0.0208 1.0000 1.0000
+vt 0.0000 0.0000 -0.0000
+# 4 texture coords
+
+o Plane_010_Plane_011
+g Plane_010_Plane_011
+usemtl None
+s off
+f 1/1/1 2/2/1 3/3/1 
+f 3/3/1 4/4/1 1/1/1 
+# 2 faces
+
