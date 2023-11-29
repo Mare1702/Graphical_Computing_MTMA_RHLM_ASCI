@@ -64,7 +64,7 @@ GLFWmonitor *monitors;
 void getResolution(void);
 
 // camera
-Camera camera(glm::vec3(0.0f, 2.0f, 1.0f));
+Camera camera(glm::vec3(0.0f, 4.0f, 3.0f));
 float MovementSpeed = 0.1f;
 float lastX = SCR_WIDTH / 2.0f;
 float lastY = SCR_HEIGHT / 2.0f;
@@ -86,6 +86,18 @@ float myVar = 0.0f;
 glm::vec3 lightColor = glm::vec3(0.7f);
 glm::vec3 diffuseColor = lightColor * glm::vec3(0.5f);
 glm::vec3 ambientColor = diffuseColor * glm::vec3(0.75f);
+
+//cambio de skybox
+boolean noche = false;
+
+/****************************************************
+						Flippers
+****************************************************/
+
+float flipper1,
+flipper2,
+flipper3;
+
 
 //***************************************************
 //VALORES DE POSICIÓN Y ANIMACIÓN DE POMPOMPURIN
@@ -236,28 +248,37 @@ void animate(void)
 	if (prendida == 1 && (cont % 250) == 0) {
 		cont = 0;
 		elegirColor += 1;
-		std::cout << "Entre = " << elegirColor << std::endl;
 
+		//Día (naranja)
 		if (elegirColor == 1){
 			varColorR = 1.0f;
-			varColorG = 0.0f;
+			varColorG = 0.3f;
 			varColorB = 0.0f;
-			std::cout << "Entre al 1 = " << varColorR << std::endl;
+			noche = false;
 		}
 		else if (elegirColor == 2) {
-			varColorR = 1.0f;
-			varColorG = 1.0f;
-			varColorB = 0.0f;
+			varColorR = 0.95f;
+			varColorG = 0.15f;
+			varColorB = 0.3f;
 		}
+		//atardecer (rosa)
 		else if (elegirColor == 3) {
-			varColorR = 0.3f;
-			varColorG = 1.0f;
-			varColorB = 0.0f;
+			varColorR = 0.9f;
+			varColorG = 0.0f;
+			varColorB = 0.6f;
 		}
 		else if (elegirColor == 4) {
-			varColorR = 0.5f;
+			noche = true;
+			varColorR = 0.55f;
 			varColorG = 0.0f;
-			varColorB = 0.8f;
+			varColorB = 0.4f;
+
+		}
+		//noche (morado)
+		else if (elegirColor == 5) {
+			varColorR = 0.1f;
+			varColorG = 0.0f;
+			varColorB = 0.25f;
 			elegirColor = 0;
 		}
 	}
@@ -309,7 +330,8 @@ void animate(void)
 	//Animación de caminata de Pompompurin
 //***************************************************
 	//Este ciclo se activará con cualquiera de las 
-	if (walkCycle) {
+
+	/*if (walkCycle) {
 		for (int i = 0; i < 15; i++) {
 			giroBrazoDer += 0.1;
 			giroBrazoIzq -= 0.1;
@@ -321,7 +343,7 @@ void animate(void)
 		//giroBrazoIzq = 180.0f;
 		//giroPiernaDer = 0.0f;
 		//giroPiernaIzq = 0.0f;
-	}
+	}*/
 }
 
 void getResolution()
@@ -397,7 +419,18 @@ int main()
 		"resources/skybox/2/atras.jpg"
 	};
 
+	vector<std::string> faces2
+	{
+		"resources/skybox/4/der.jpg",
+		"resources/skybox/4/izq.jpg",
+		"resources/skybox/4/arriba.jpg",
+		"resources/skybox/4/abajo.jpg",
+		"resources/skybox/4/frente.jpg",
+		"resources/skybox/4/atras.jpg"
+	};
+
 	Skybox skybox = Skybox(faces);
+	Skybox skybox2 = Skybox(faces2);
 
 	// Shader configuration
 	// --------------------
@@ -412,6 +445,8 @@ int main()
 	Model Barrera1("resources/objects/Barrera1/Barrera1.obj");
 	Model Barrera2("resources/objects/Barrera2/Barrera2.obj");
 	Model PlataformaPiso("resources/objects/PlataformaPiso/PlataformaPiso.obj");
+	Model Plataforma("resources/objects/Plataforma/Plataforma.obj");
+	Model Flipper("resources/objects/Flipper/Flipper.obj");
 
 	Model piso("resources/objects/piso/piso.obj");
 
@@ -483,6 +518,9 @@ int main()
 	// -----------
 	while (!glfwWindowShouldClose(window))
 	{
+		//if(elegirColor==1)
+
+
 		skyboxShader.setInt("skybox", 0);
 
 		// per-frame time logic
@@ -503,12 +541,12 @@ int main()
 		// don't forget to enable shader before setting uniforms
 		staticShader.use();
 
-		//Setup Advanced Lights
+		//Día y noche
 		staticShader.setVec3("viewPos", camera.Position);
 		staticShader.setVec3("dirLight.direction", lightDirection);
-		staticShader.setVec3("dirLight.ambient", glm::vec3(0.5f, 0.45f, 0.45f)); //afecta a todo
-		staticShader.setVec3("dirLight.diffuse", glm::vec3(0.45f, 0.4f, 0.4f)); //afecta a ciertas caras
-		staticShader.setVec3("dirLight.specular", glm::vec3(0.45f, 0.4f, 0.4f)); //afecta el brillo que reflejan los objetos
+		staticShader.setVec3("dirLight.ambient", glm::vec3(varColorR, varColorG, varColorB)); //afecta a todo
+		staticShader.setVec3("dirLight.diffuse", glm::vec3(0.1f, 0.05f, 0.05f)); //afecta a ciertas caras
+		staticShader.setVec3("dirLight.specular", glm::vec3(0.1f, 0.05f, 0.05f)); //afecta el brillo que reflejan los objetos
 
 		staticShader.setVec3("pointLight[0].position", glm::vec3(-200.0f, 14.0f, -80.0f));
 		staticShader.setVec3("pointLight[0].ambient", glm::vec3(0.2f, 0.2f, 0.0f));
@@ -526,16 +564,36 @@ int main()
 		staticShader.setFloat("pointLight[1].linear", 0.0009f);
 		staticShader.setFloat("pointLight[1].quadratic", 0.0032f);
 
-		//Luz de peces
-		staticShader.setVec3("pointLight[2].position", glm::vec3(-295.0f, 10.0f, -200.0f));
+		//Luz de día
+		staticShader.setVec3("pointLight[2].position", glm::vec3(0.0f, 1.0f, 0.0f));
 		staticShader.setVec3("pointLight[2].ambient", glm::vec3(varColorR, varColorG, varColorB));
 		staticShader.setVec3("pointLight[2].diffuse", glm::vec3(0.0f, 0.0f, 0.0f));
 		staticShader.setVec3("pointLight[2].specular", glm::vec3(0.0f, 0.0f, 0.0f));
-		staticShader.setFloat("pointLight[2].constant", 0.01f);
-		staticShader.setFloat("pointLight[2].linear", 0.1f);
-		staticShader.setFloat("pointLight[2].quadratic", 0.0008f);
+		staticShader.setFloat("pointLight[2].constant", 1.0f);
+		staticShader.setFloat("pointLight[2].linear", 1.0f);
+		staticShader.setFloat("pointLight[2].quadratic", 1.0f);
 
-		staticShader.setVec3("spotLight[1].position", glm::vec3(-200.0f, 25.0f, -290.0f));
+		//Luz de noche
+		/*staticShader.setVec3("pointLight[3].position", glm::vec3(0.0f, 1.0f, 0.0f));
+		staticShader.setVec3("pointLight[3].ambient", glm::vec3(varColorR2, varColorG2, varColorB2));
+		staticShader.setVec3("pointLight[3].diffuse", glm::vec3(0.0f, 0.0f, 0.0f));
+		staticShader.setVec3("pointLight[3].specular", glm::vec3(0.0f, 0.0f, 0.0f));
+		staticShader.setFloat("pointLight[3].constant", 1.0f);
+		staticShader.setFloat("pointLight[3].linear", 1.0f);
+		staticShader.setFloat("pointLight[3].quadratic", 1.0f);*/
+
+		staticShader.setVec3("spotLight[0].position", glm::vec3(0.0f, 0.5f, 0.0f));
+		staticShader.setVec3("spotLight[0].direction", glm::vec3(0.0f, 0.0f, -1.0));//
+		staticShader.setVec3("spotLight[0].ambient", glm::vec3(1.0f, 0.3f, 0.3f));
+		staticShader.setVec3("spotLight[0].diffuse", glm::vec3(0.9f, 0.9f, 0.9f));
+		staticShader.setVec3("spotLight[0].specular", glm::vec3(0.9f, 0.0f, 0.0f));
+		staticShader.setFloat("spotLight[0].cutOff", glm::cos(glm::radians(5.0f))); //radio del circulo de luz directa
+		staticShader.setFloat("spotLight[0].outerCutOff", glm::cos(glm::radians(30.0f))); //radio del circulo de luz extra
+		staticShader.setFloat("spotLight[0].constant", 1.0f);
+		staticShader.setFloat("spotLight[0].linear", 0.0009f);
+		staticShader.setFloat("spotLight[0].quadratic", 0.0032f);
+
+		/*staticShader.setVec3("spotLight[1].position", glm::vec3(-200.0f, 25.0f, -290.0f));
 		staticShader.setVec3("spotLight[1].direction", glm::vec3(camera.Front.x, camera.Front.y, camera.Front.z));
 		staticShader.setVec3("spotLight[1].ambient", glm::vec3(0.3f, 0.3f, 0.3f));
 		staticShader.setVec3("spotLight[1].diffuse", glm::vec3(0.9f, 0.9f, 0.9f));
@@ -544,9 +602,9 @@ int main()
 		staticShader.setFloat("spotLight[1].outerCutOff", glm::cos(glm::radians(30.0f))); //radio del circulo de luz extra
 		staticShader.setFloat("spotLight[1].constant", 0.01f);
 		staticShader.setFloat("spotLight[1].linear", 0.9f);
-		staticShader.setFloat("spotLight[1].quadratic", 0.5f);
+		staticShader.setFloat("spotLight[1].quadratic", 0.5f);*/
 
-		staticShader.setVec3("spotLight[0].position", glm::vec3(camera.Position.x, camera.Position.y, camera.Position.z));
+		/*staticShader.setVec3("spotLight[0].position", glm::vec3(camera.Position.x, camera.Position.y, camera.Position.z));
 		staticShader.setVec3("spotLight[0].direction", glm::vec3(camera.Front.x, camera.Front.y, camera.Front.z));
 		staticShader.setVec3("spotLight[0].ambient", glm::vec3(0.3f, 0.3f, 0.3f));
 		staticShader.setVec3("spotLight[0].diffuse", glm::vec3(0.9f, 0.9f, 0.9f));
@@ -555,7 +613,7 @@ int main()
 		staticShader.setFloat("spotLight[0].outerCutOff", glm::cos(glm::radians(30.0f))); //radio del circulo de luz extra
 		staticShader.setFloat("spotLight[0].constant", 0.01f);
 		staticShader.setFloat("spotLight[0].linear", 0.9f);
-		staticShader.setFloat("spotLight[0].quadratic", 0.5f);
+		staticShader.setFloat("spotLight[0].quadratic", 0.5f);*/
 
 		staticShader.setFloat("material_shininess", 32.0f);
 
@@ -597,44 +655,51 @@ int main()
 		piso.Draw(staticShader);*/
 
 		model = glm::mat4(1.0f);
-		model = glm::translate(model, glm::vec3(0.0f, 0.0f, 0.0f));
 		model = glm::scale(model, glm::vec3(10.0f));
 		staticShader.setMat4("model", model);
 		Cajon.Draw(staticShader);
 
 		model = glm::mat4(1.0f);
-		model = glm::translate(model, glm::vec3(0.0f, 0.0f, 0.0f));
+		model = glm::translate(model, glm::vec3(0.0f, 0.05f, 0.0f));
 		model = glm::scale(model, glm::vec3(10.0f));
 		staticShader.setMat4("model", model);
 		CajonPiso.Draw(staticShader);
 
 		model = glm::mat4(1.0f);
-		model = glm::translate(model, glm::vec3(0.0f, 0.0f, 0.0f));
 		model = glm::scale(model, glm::vec3(10.0f));
 		staticShader.setMat4("model", model);
 		CoraRosita.Draw(staticShader);
 
 		model = glm::mat4(1.0f);
-		model = glm::translate(model, glm::vec3(0.0f, 0.0f, 0.0f));
 		model = glm::scale(model, glm::vec3(10.0f));
 		staticShader.setMat4("model", model);
 		Bumper.Draw(staticShader);
 
 		model = glm::mat4(1.0f);
-		model = glm::translate(model, glm::vec3(0.0f, 0.0f, 0.0f));
 		model = glm::scale(model, glm::vec3(10.0f));
 		staticShader.setMat4("model", model);
 		Pared.Draw(staticShader);
 
 		model = glm::mat4(1.0f);
 		model = glm::translate(model, glm::vec3(0.0f, 0.0f, 0.0f));
-		model = glm::scale(model, glm::vec3(10.0f));
+		tmp = model = glm::scale(model, glm::vec3(10.0f));
+		staticShader.setMat4("model", model);
+		Barrera1.Draw(staticShader);
+
+		model = glm::mat4(tmp);
+		model = glm::translate(model, glm::vec3(-0.05f, 0.39f, 0.01f));
+		model = glm::rotate(model, glm::radians(180.0f), glm::vec3(0.0f, 0.0f, 1.0));
 		staticShader.setMat4("model", model);
 		Barrera1.Draw(staticShader);
 
 		model = glm::mat4(1.0f);
-		model = glm::translate(model, glm::vec3(0.0f, 0.0f, 0.0f));
 		model = glm::scale(model, glm::vec3(10.0f));
+		staticShader.setMat4("model", model);
+		Barrera2.Draw(staticShader);
+
+		model = glm::mat4(tmp);
+		model = glm::translate(model, glm::vec3(-0.05f, 0.39f, 0.02f));
+		model = glm::rotate(model, glm::radians(180.0f), glm::vec3(0.0f, 0.0f, 1.0));
 		staticShader.setMat4("model", model);
 		Barrera2.Draw(staticShader);
 
@@ -642,44 +707,80 @@ int main()
 		model = glm::translate(model, glm::vec3(0.0f, 0.0f, 0.0f));
 		model = glm::scale(model, glm::vec3(10.0f));
 		staticShader.setMat4("model", model);
+		Plataforma.Draw(staticShader);
+
+		model = glm::mat4(1.0f);
+		model = glm::translate(model, glm::vec3(0.0f, 0.0f, 0.0f));
+		model = glm::scale(model, glm::vec3(10.0f));
+		staticShader.setMat4("model", model);
 		PlataformaPiso.Draw(staticShader);
+
+		model = glm::mat4(1.0f);
+		model = glm::translate(model, glm::vec3(-0.25f, 1.9f, 2.8f));
+		model = glm::rotate(model, glm::radians(flipper1), glm::vec3(0.0f, 1.0f, 0.0));
+		model = glm::scale(model, glm::vec3(9.5f));
+		staticShader.setMat4("model", model);
+		Flipper.Draw(staticShader);
+
+		model = glm::mat4(1.0f);
+		model = glm::translate(model, glm::vec3(-0.95f, 1.9f, 5.8f));
+		model = glm::rotate(model, glm::radians(10 + flipper2), glm::vec3(0.0f, 1.0f, 0.0));
+		model = glm::scale(model, glm::vec3(9.5f));
+		staticShader.setMat4("model", model);
+		Flipper.Draw(staticShader);
+
+		model = glm::mat4(1.0f);
+		model = glm::translate(model, glm::vec3(0.42f, 1.9f, 5.8f));
+		model = glm::rotate(model, glm::radians(-115 + flipper3), glm::vec3(0.0f, 1.0f, 0.0));
+		model = glm::scale(model, glm::vec3(9.5f));
+		staticShader.setMat4("model", model);
+		Flipper.Draw(staticShader);
+
+
+
+
+
+
+
 
 		//***************************************************
 		//VALORES DE POSICIÓN Y ANIMACIÓN DE POMPOMPURIN
 		//***************************************************
 
-		model = glm::translate(glm::mat4(1.0f), glm::vec3(0, 1.7, 0));
+		model = glm::translate(glm::mat4(1.0f), glm::vec3(0, 1.705, 0));
 		model = glm::translate(model, glm::vec3(posX, posY, posZ));
 		//model = glm::translate(model, glm::vec3(0,0,0));Puede que esta línea no sea importante para la posición de Pompompurin
-		model = glm::scale(model, glm::vec3(0.05f));
+		model = glm::scale(model, glm::vec3(0.075f));
 		//La variable orienta se encarga de girar a Pompompurin, para que rote de izquierda a derecha, se hace en referencia al eje Y
 		tmp = model = glm::rotate(model, glm::radians(orienta), glm::vec3(0.0f, 1.0f, 0.0));
 		staticShader.setMat4("model", model);
 		torso.Draw(staticShader);
 
 				//Pierna Der
-		model = glm::translate(tmp, glm::vec3(-1.8f, 0.0f, 0.1f));
-		model = glm::rotate(model, glm::radians(giroPiernaDer), glm::vec3(1.0f, 0.0f, 0.0));
+		model = glm::scale(tmp, glm::vec3(1.4f));
+		model = glm::translate(tmp, glm::vec3(1.0f, 2.8f, -1.0f));
+		model = glm::rotate(model, glm::radians(180 + giroPiernaDer), glm::vec3(1.0f, 0.0f, 0.0));
 		staticShader.setMat4("model", model);
 		piernaDer.Draw(staticShader);
 
 				//Pierna Izq
-		model = glm::translate(tmp, glm::vec3(0.5f, 0.0f, 0.1f));
-		model = glm::rotate(model, glm::radians(giroPiernaIzq), glm::vec3(1.0f, 0.0f, 0.0f));
+		model = glm::scale(tmp, glm::vec3(1.4f));
+		model = glm::translate(tmp, glm::vec3(0.0f, 2.8f, -1.0f));
+		model = glm::rotate(model, glm::radians(180 - giroPiernaDer), glm::vec3(1.0f, 0.0f, 0.0));
 		staticShader.setMat4("model", model);
 		piernaIzq.Draw(staticShader);
 
 				//Brazo Der
-		model = glm::translate(tmp, glm::vec3(-2.8f, 3.0f, 0.0f));
-		model = glm::translate(model, glm::vec3(-0.75f, 2.5f, 0));
-		model = glm::rotate(model, glm::radians(giroBrazoDer), glm::vec3(1.0f, 0.0f, 0.0f));
+		model = glm::translate(tmp, glm::vec3(-2.8f, 3.0f, -1.0f));
+		model = glm::translate(model, glm::vec3(-0.75f, 2.75f, 0));
+		model = glm::rotate(model, glm::radians(giroBrazoDer), glm::vec3(1.0f, 0.f, 0.0f));
 		staticShader.setMat4("model", model);
 		brazoDer.Draw(staticShader);
 
 			//Brazo Izq
-		model = glm::translate(tmp, glm::vec3(2.8f, 3.0f, 0.0f));
-		model = glm::translate(model, glm::vec3(0.75f, 2.5f, 0));
-		model = glm::rotate(model, glm::radians(giroBrazoIzq), glm::vec3(1.0f, 0.0f, 0.0f)); //Hacemos que el giro dependa de la variable declarada para el giro
+		model = glm::translate(tmp, glm::vec3(2.8f, 3.0f, -1.0f));
+		model = glm::translate(model, glm::vec3(0.75f, 2.75f, 0));
+		model = glm::rotate(model, glm::radians(-giroBrazoDer), glm::vec3(1.0f, 0.0f, 0.0f)); //Hacemos que el giro dependa de la variable declarada para el giro
 		staticShader.setMat4("model", model);
 		brazoIzq.Draw(staticShader);
 
@@ -688,8 +789,14 @@ int main()
 		//-------------------------------------------------------------------------------------
 		// draw skybox as last
 		// -------------------
-		skyboxShader.use();
-		skybox.Draw(skyboxShader, view, projection, camera);
+		if (noche) {
+			skyboxShader.use();
+			skybox2.Draw(skyboxShader, view, projection, camera);
+		}
+		else {
+			skyboxShader.use();
+			skybox.Draw(skyboxShader, view, projection, camera);
+		}
 
 		// Limitar el framerate a 60
 		deltaTime = SDL_GetTicks() - lastFrame; // time for full 1 loop
@@ -738,6 +845,18 @@ void my_input(GLFWwindow *window, int key, int scancode, int action, int mode)
 	//	posY++;
 	//if (glfwGetKey(window, GLFW_KEY_K) == GLFW_PRESS)
 	//	posY--;
+
+	if (glfwGetKey(window, GLFW_KEY_J) == GLFW_PRESS && flipper1 < 55)
+		flipper1 += 65;
+	else flipper1 = 0;
+	if (glfwGetKey(window, GLFW_KEY_K) == GLFW_PRESS && flipper2 < 55)
+		flipper2 += 55;
+	else flipper2 = 0;
+	if (glfwGetKey(window, GLFW_KEY_L) == GLFW_PRESS && flipper3 > -55)
+		flipper3 -= 55;
+	else flipper3 = 0;
+
+
 	if (glfwGetKey(window, GLFW_KEY_X) == GLFW_PRESS) {
 		rotAlas1--;
 		rotAlas2++;
@@ -763,23 +882,39 @@ void my_input(GLFWwindow *window, int key, int scancode, int action, int mode)
 	//Al presionar cualquiera de las teclas direccionales, se activará la función "walkCycle"
 	//para hacer que los brazos y piernas del personaje comiencen a moverse.
 	if (glfwGetKey(window, GLFW_KEY_T) == GLFW_PRESS) {
-		walkCycle = true;
-		std::cout << "walkCycle T = " << walkCycle << std::endl;
+		posZ += 0.05;
+
 		cont1 += 1;
 		if (cont1 >= 15) {
 			regresoWalkCycle = !regresoWalkCycle;
 			cont1 = 0;
 		}
 		if (regresoWalkCycle == true) {
-			giroPiernaDer += 2.0;
-			giroPiernaIzq -= 2.0;
-		}else
-			giroPiernaDer -= 2.0;
-			giroPiernaIzq += 2.0;
+			giroPiernaDer += 1.5;
+			giroBrazoDer += 1.5;
+		}
+		else {
+			giroPiernaDer -= 1.5;
+			giroBrazoDer -= 1.5;
+		}
+	}
 
-		//posZ += 0.1;
-	}else{
-		walkCycle = false;
+	if (glfwGetKey(window, GLFW_KEY_G) == GLFW_PRESS) {
+		posZ -= 0.05;
+
+		cont1 += 1;
+		if (cont1 >= 15) {
+			regresoWalkCycle = !regresoWalkCycle;
+			cont1 = 0;
+		}
+		if (regresoWalkCycle == true) {
+			giroPiernaDer += 1.5;
+			giroBrazoDer += 1.5;
+		}
+		else {
+			giroPiernaDer -= 1.5;
+			giroBrazoDer -= 1.5;
+		}
 	}
 
 	if (glfwGetKey(window, GLFW_KEY_F) == GLFW_PRESS) {
@@ -790,13 +925,7 @@ void my_input(GLFWwindow *window, int key, int scancode, int action, int mode)
 		walkCycle = false;
 	}
 
-	if (glfwGetKey(window, GLFW_KEY_G) == GLFW_PRESS) {
-		walkCycle = true;
-		std::cout << "walkCycle G = " << walkCycle << std::endl;
-		posZ -= 0.1;
-	}else{
-		walkCycle = false;
-	}
+	
 
 	if (glfwGetKey(window, GLFW_KEY_H) == GLFW_PRESS) {
 		walkCycle = true;
@@ -828,13 +957,13 @@ void my_input(GLFWwindow *window, int key, int scancode, int action, int mode)
 	}
 
 	//To Save a KeyFrame
-	if (key == GLFW_KEY_L && action == GLFW_PRESS)
+	/*if (key == GLFW_KEY_L && action == GLFW_PRESS)
 	{
 		if (FrameIndex < MAX_FRAMES)
 		{
 			saveFrame();
 		}
-	}
+	}*/
 
 	//Prender Luz
 	if (glfwGetKey(window, GLFW_KEY_Q) == GLFW_PRESS) {
